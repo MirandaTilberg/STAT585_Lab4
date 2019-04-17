@@ -13,5 +13,6 @@ df <- raw_df %>% mutate(date = ymd_hms(date),
 
 
 zipmap <- leaflet::leaflet(data = df) %>% leaflet::addTiles() %>%
-  leaflet::addCircleMarkers(~longitude, ~latitude, popup = ~name, label = ~name)
+  leaflet::addCircleMarkers(~longitude, ~latitude, popup = ~name, label = ~name,
+                            clusterOptions = markerClusterOptions())
 zipmap
