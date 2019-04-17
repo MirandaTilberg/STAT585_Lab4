@@ -17,8 +17,9 @@ zipmap <- leaflet::leaflet(data = df) %>% leaflet::addTiles() %>%
 zipmap
 
 
+# Playing around with sorting by type of booze
+cats <- df$category_name %>% unique %>% tolower(); cats
+booze <- c("vodka", "whisk", "schnapps", "rum", "brand")
 
-cats <- df$category_name %>% unique %>% tolower() %>% as.data.frame %>% separate(" "); cats
-booze <- c("vodka", "whiskey", "schnaps"); booze
-pmatch(cats, booze)
+sapply(booze, function(x) {grepl(x, cats)})
 
