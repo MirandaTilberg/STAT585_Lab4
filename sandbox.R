@@ -7,10 +7,11 @@ library(magrittr)
 library(lubridate)
 df <- raw_df %>% mutate(date = ymd_hms(date),
                         longitude = as.numeric(store_location.coordinates1),
-                        latitude = as.numeric(store_location.coordinates2),)
+                        latitude = as.numeric(store_location.coordinates2)) %>%
+  filter(!is.na(latitude)) %>%
+  filter(!is.na(longitude))
 
 
 zipmap <- leaflet::leaflet(data = df) %>% leaflet::addTiles() %>%
-  leaflet::addCircleMarkers(~as.numeric(store_location.coordinates1), 
-                            ~as.numeric(store_location.coordinates2), 
-                            popup = ~name, label = ~name)
+  leaflet::addCircleMarkers(~longitude, ~latitude, popup = ~name, label = ~name)
+zipmap
