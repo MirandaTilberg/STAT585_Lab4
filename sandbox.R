@@ -13,6 +13,13 @@ df <- raw_df %>% mutate(date = ymd_hms(date),
 
 
 zipmap <- leaflet::leaflet(data = df) %>% leaflet::addTiles() %>%
-  leaflet::addCircleMarkers(~longitude, ~latitude, popup = ~name, label = ~name,
-                            clusterOptions = markerClusterOptions())
+  leaflet::addCircleMarkers(~longitude, ~latitude, popup = ~name, label = ~name)
 zipmap
+
+
+# Playing around with sorting by type of booze
+cats <- df$category_name %>% unique %>% tolower(); cats
+booze <- c("vodka", "whisk", "schnapps", "rum", "brand")
+
+sapply(booze, function(x) {grepl(x, cats)})
+
