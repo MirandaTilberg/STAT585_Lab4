@@ -3,35 +3,6 @@ library(dplyr)
 library(lubridate)
 library(stringr)
 
-# Data Pre-processing
-raw_df <- "https://data.iowa.gov/resource/m3tr-qhgy.json?county=Story" %>%
-  jsonlite::read_json() %>%
-  purrr::map_df(~ as_tibble(as.list(unlist(.x, use.names = T))))
-
-df <- raw_df %>%
-  mutate_at(vars(bottle_volume_ml, pack, starts_with("store_location.coordinates"),
-                 starts_with("sale"), starts_with("state")), as.numeric) %>%
-  mutate(date = date(ymd_hms(date)),
-         category_type = case_when(
-           str_detect(category_name, "WHISKIES") ~ "WHISKIES",
-           str_detect(category_name, "SCHNAPPS") ~ "SCHNAPPS",
-           str_detect(category_name, "CORDIALS") ~ "CORDIALS",
-           str_detect(category_name, "LIQUEURS") ~ "LIQUEURS",
-           str_detect(category_name, "VODKA") ~ "VODKA",
-           str_detect(category_name, "GINS") ~ "GINS",
-           str_detect(category_name, "RUM") ~ "RUM",
-           str_detect(category_name, "AMARETTO") ~ "AMARETTO",
-           str_detect(category_name, "TEQUILA") ~ "TEQUILA",
-           T ~ "Others"
-         )) %>%
-  select(item = im_desc, category_name, category_type, date,
-         longitude = store_location.coordinates1, latitude = store_location.coordinates2, everything()) %>%
-  select(-name, -city, -county, -zipcode, -address, everything()) %>%
-  select(-category, -county_number, -invoice_line_no, -itemno, -sale_gallons,
-         -starts_with("store"), -starts_with("vendor")) %>%
-  filter_at(vars(date, longitude, latitude), ~ !is.na(.)) %>%
-  arrange(date)
-
 
 ui <- fluidPage(
   titlePanel("Liquor Purchases in Story County"),
@@ -87,7 +58,7 @@ server <- function(input, output) {
   )
   output$map <- leaflet::renderLeaflet({
     leaflet::leaflet(data = df) %>% leaflet::addTiles() %>%
-    leaflet::addCircleMarkers(~ longitude, ~ latitude, popup = ~ name, label = ~ item,
+    leaflet::addCircleMarkers(~ Longitude, ~ Latitude, popup = ~ Item, label = ~ Category,
                               clusterOptions = leaflet::markerClusterOptions())
   })
 }
