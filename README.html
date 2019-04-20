@@ -236,10 +236,7 @@ df &lt;- raw_df %&gt;%
   rename_all(~ str_remove_all(., &quot; &quot;)) %&gt;%
   mutate_at(vars(City, County, CategoryName), str_to_upper) %&gt;% 
   mutate(Date = mdy(Date), ZipCode = as.character(ZipCode),
-         StoreLocation = str_split(str_extract(StoreLocation, &quot;(?&lt;=\\()\\S+, ?\\S+(?=\\)$)&quot;),
-                                   &quot;, ?&quot;, simplify = F),
-         Longitude = purrr::map_dbl(StoreLocation, ~ as.numeric(.[2])),
-         Latitude = purrr::map_dbl(StoreLocation, ~ as.numeric(.[1])),
+         StoreLocation = str_extract(StoreLocation, &quot;(?&lt;=\\()\\S+, ?\\S+(?=\\)$)&quot;),
          Category = case_when(
            str_detect(CategoryName, &quot;BOURBON&quot;) ~ &quot;BOURBON&quot;,
            str_detect(CategoryName, &quot;WHISKIES|WHISKEY&quot;) ~ &quot;WHISKIES&quot;,
@@ -253,27 +250,28 @@ df &lt;- raw_df %&gt;%
            str_detect(CategoryName, &quot;AMARETTO&quot;) ~ &quot;AMARETTO&quot;,
            str_detect(CategoryName, &quot;TEQUILA&quot;) ~ &quot;TEQUILA&quot;,
            T ~ &quot;OTHER&quot;
-         )) %&gt;% 
+         )) %&gt;%
+  tidyr::separate(StoreLocation, c(&quot;Latitude&quot;, &quot;Longitude&quot;), sep = &quot;, ?&quot;, convert = T) %&gt;%
   select(-CategoryName, -CountyNumber, -`VolumeSold(Gallons)`,
          -ends_with(&quot;ItemNumber&quot;), -starts_with(&quot;Store&quot;), -starts_with(&quot;Vendor&quot;)) %&gt;%
-  select(Item = ItemDescription, Category, Date, Longitude, Latitude, everything()) %&gt;%
+  select(Item = ItemDescription, Category, everything()) %&gt;%
   select(-City, -County, -ZipCode, -Address, everything()) %&gt;%
   filter_at(vars(Date, Longitude, Latitude), ~ !is.na(.)) %&gt;%
   arrange(Date)
 df</code></pre>
 <pre><code>## # A tibble: 457,020 x 16
-##    Item  Category Date       Longitude Latitude  Pack `BottleVolume(m…
-##    &lt;chr&gt; &lt;chr&gt;    &lt;date&gt;         &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;            &lt;dbl&gt;
-##  1 Cana… WHISKIES 2012-01-03     -93.5     42.0     6             1750
-##  2 Crow… WHISKIES 2012-01-03     -93.5     42.0    12              750
-##  3 Para… GINS     2012-01-03     -93.7     42.0    12             1000
-##  4 Hawk… VODKA    2012-01-03     -93.6     42.0    24              375
-##  5 Sved… VODKA    2012-01-03     -93.5     42.0    12              750
-##  6 Crow… WHISKIES 2012-01-03     -93.6     42.0    12              750
-##  7 Smir… VODKA    2012-01-03     -93.5     42.0    12              750
-##  8 Bart… VODKA    2012-01-03     -93.5     42.0    12             1000
-##  9 Hawk… VODKA    2012-01-03     -93.5     42.0     6             1750
-## 10 E &amp; … BRANDIES 2012-01-03     -93.6     42.0    12              750
+##    Item  Category Date       Latitude Longitude  Pack `BottleVolume(m…
+##    &lt;chr&gt; &lt;chr&gt;    &lt;date&gt;        &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;            &lt;dbl&gt;
+##  1 Cana… WHISKIES 2012-01-03     42.0     -93.5     6             1750
+##  2 Crow… WHISKIES 2012-01-03     42.0     -93.5    12              750
+##  3 Para… GINS     2012-01-03     42.0     -93.7    12             1000
+##  4 Hawk… VODKA    2012-01-03     42.0     -93.6    24              375
+##  5 Sved… VODKA    2012-01-03     42.0     -93.5    12              750
+##  6 Crow… WHISKIES 2012-01-03     42.0     -93.6    12              750
+##  7 Smir… VODKA    2012-01-03     42.0     -93.5    12              750
+##  8 Bart… VODKA    2012-01-03     42.0     -93.5    12             1000
+##  9 Hawk… VODKA    2012-01-03     42.0     -93.5     6             1750
+## 10 E &amp; … BRANDIES 2012-01-03     42.0     -93.6    12              750
 ## # … with 457,010 more rows, and 9 more variables: StateBottleCost &lt;dbl&gt;,
 ## #   StateBottleRetail &lt;dbl&gt;, BottlesSold &lt;dbl&gt;, `Sale(Dollars)` &lt;dbl&gt;,
 ## #   `VolumeSold(Liters)` &lt;dbl&gt;, Address &lt;chr&gt;, City &lt;chr&gt;, ZipCode &lt;chr&gt;,
