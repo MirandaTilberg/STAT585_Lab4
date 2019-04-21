@@ -94,3 +94,6 @@ df
 ```
 
 ## Shiny app
+```
+runApp("shiny")
+```
