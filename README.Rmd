@@ -69,8 +69,8 @@ df <- raw_df %>%
   select(Item = ItemDescription, Category, everything()) %>%
   select(-City, -County, -ZipCode, -Address, everything()) %>%
   filter_at(vars(Date, Longitude, Latitude), ~ !is.na(.)) %>%
-  arrange(Date)
-df
+  arrange(Date) 
+colnames(df)[c(7,11,12)] <- c("BottleVolume","Sale","VolumeSold")
 ```
 
 ## Shiny app

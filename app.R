@@ -2,7 +2,7 @@ library(shiny)
 library(dplyr)
 library(lubridate)
 library(stringr)
-
+library(leaflet)
 
 ui <- fluidPage(
   titlePanel("Liquor Purchases in Story County"),
@@ -11,10 +11,21 @@ ui <- fluidPage(
   #label is the Name of the input
   #choice is the option for the input
   #multiple is whether input could be multiple choice
-  selectizeInput(inputId = "code", label = "XXX", 
-                 choices=1:5, 
-                 selected=NULL,
-                 multiple=T),
+  fluidRow(
+    column(4,
+           selectizeInput(inputId = "category", label = "Type of Liquor", 
+                          choices=unique(df$Category), 
+                          selected=NULL,
+                          multiple=F)
+      ),
+    column(4,
+           sliderInput(inputId = "date", "Range of date",
+                       min = min(df$Date),
+                       max = max(df$Date),
+                       value=as.Date(c("2012-12-01","2013-03-02"),timeFormat="%Y-%m-%d"))
+           )
+  ),
+  
   #check box menu
   #we can add more kinds of input menu if we need
   fluidRow(
@@ -48,8 +59,9 @@ ui <- fluidPage(
 
 server <- function(input, output) {
   output$plot_temporal <- renderPlot({
-    #plot function
-    # plot_temporal_function()
+    ggplot(data= df %>% subset(Category == input$category & Date >= input$date[1] & Date <= input$date[2]), aes(x=Date, y=Sale))+
+      stat_summary(fun.y = sum, na.rm=TRUE, geom='line') +
+      ggtitle("Sale(dollars) of the choice liquor in selected date")
   })
   output$plot_saptial <- renderPlot({
     #plot function
