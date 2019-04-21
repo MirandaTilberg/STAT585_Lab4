@@ -4,7 +4,9 @@ library(lubridate)
 library(stringr)
 library(leaflet)
 
+
 ui <- fluidPage(
+  
   titlePanel("Liquor Purchases in Story County"),
   #select menu 
   #inputId is the label used in the server 

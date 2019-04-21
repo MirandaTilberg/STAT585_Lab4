@@ -71,9 +71,11 @@ df <- raw_df %>%
   filter_at(vars(Date, Longitude, Latitude), ~ !is.na(.)) %>%
   arrange(Date) 
 colnames(df)[c(7,11,12)] <- c("BottleVolume","Sale","VolumeSold")
+saveRDS(df,"finalDF.rds")
 ```
 
 ## Shiny app
 ```{r}
+df <- readRDS("data/finalDF.rds")
 runApp("shiny")
 ```
