@@ -74,3 +74,6 @@ colnames(df)[c(7,11,12)] <- c("BottleVolume","Sale","VolumeSold")
 ```
 
 ## Shiny app
+```{r}
+runApp("shiny")
+```
