@@ -30,7 +30,6 @@ raw_df <- "https://data.iowa.gov/resource/m3tr-qhgy.json?county=Story" %>%
 ## Cleaning the data
 ```{r}
 library(stringr)
-library(lubridate)
 
 # Download and unzip .csv file
 filename <- list(zip = "data/story-sales.zip", csv = "data/Iowa_Liquor_Sales-Story.csv")
@@ -47,7 +46,7 @@ raw_df <- readr::read_csv(filename$csv)
 df <- raw_df %>%
   rename_all(~ str_remove_all(., " ")) %>%
   mutate_at(vars(City, County, CategoryName), str_to_upper) %>% 
-  mutate(Date = mdy(Date), ZipCode = as.character(ZipCode),
+  mutate(Date = lubridate::mdy(Date), ZipCode = as.character(ZipCode),
          StoreLocation = str_extract(StoreLocation, "(?<=\\()\\S+, ?\\S+(?=\\)$)"),
          Category = case_when(
            str_detect(CategoryName, "BOURBON") ~ "BOURBON",
@@ -69,13 +68,12 @@ df <- raw_df %>%
   select(Item = ItemDescription, Category, everything()) %>%
   select(-City, -County, -ZipCode, -Address, everything()) %>%
   filter_at(vars(Date, Longitude, Latitude), ~ !is.na(.)) %>%
-  arrange(Date) 
-colnames(df)[c(7,11,12)] <- c("BottleVolume","Sale","VolumeSold")
-saveRDS(df,"finalDF.rds")
+  arrange(Date)
+
+saveRDS(df, "data/finalDF.rds")
 ```
 
 ## Shiny app
-```{r}
-df <- readRDS("data/finalDF.rds")
-runApp("shiny")
+```{r, eval=F}
+shiny::runApp("shiny")
 ```

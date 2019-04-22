@@ -218,7 +218,6 @@ raw_df &lt;- &quot;https://data.iowa.gov/resource/m3tr-qhgy.json?county=Story&qu
 <div id="cleaning-the-data" class="section level2">
 <h2>Cleaning the data</h2>
 <pre class="r"><code>library(stringr)
-library(lubridate)
 
 # Download and unzip .csv file
 filename &lt;- list(zip = &quot;data/story-sales.zip&quot;, csv = &quot;data/Iowa_Liquor_Sales-Story.csv&quot;)
@@ -235,7 +234,7 @@ raw_df &lt;- readr::read_csv(filename$csv)
 df &lt;- raw_df %&gt;%
   rename_all(~ str_remove_all(., &quot; &quot;)) %&gt;%
   mutate_at(vars(City, County, CategoryName), str_to_upper) %&gt;% 
-  mutate(Date = mdy(Date), ZipCode = as.character(ZipCode),
+  mutate(Date = lubridate::mdy(Date), ZipCode = as.character(ZipCode),
          StoreLocation = str_extract(StoreLocation, &quot;(?&lt;=\\()\\S+, ?\\S+(?=\\)$)&quot;),
          Category = case_when(
            str_detect(CategoryName, &quot;BOURBON&quot;) ~ &quot;BOURBON&quot;,
@@ -258,27 +257,12 @@ df &lt;- raw_df %&gt;%
   select(-City, -County, -ZipCode, -Address, everything()) %&gt;%
   filter_at(vars(Date, Longitude, Latitude), ~ !is.na(.)) %&gt;%
   arrange(Date)
-df</code></pre>
-<pre><code>## # A tibble: 457,020 x 16
-##    Item  Category Date       Latitude Longitude  Pack `BottleVolume(m…
-##    &lt;chr&gt; &lt;chr&gt;    &lt;date&gt;        &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;            &lt;dbl&gt;
-##  1 Cana… WHISKIES 2012-01-03     42.0     -93.5     6             1750
-##  2 Crow… WHISKIES 2012-01-03     42.0     -93.5    12              750
-##  3 Para… GINS     2012-01-03     42.0     -93.7    12             1000
-##  4 Hawk… VODKA    2012-01-03     42.0     -93.6    24              375
-##  5 Sved… VODKA    2012-01-03     42.0     -93.5    12              750
-##  6 Crow… WHISKIES 2012-01-03     42.0     -93.6    12              750
-##  7 Smir… VODKA    2012-01-03     42.0     -93.5    12              750
-##  8 Bart… VODKA    2012-01-03     42.0     -93.5    12             1000
-##  9 Hawk… VODKA    2012-01-03     42.0     -93.5     6             1750
-## 10 E &amp; … BRANDIES 2012-01-03     42.0     -93.6    12              750
-## # … with 457,010 more rows, and 9 more variables: StateBottleCost &lt;dbl&gt;,
-## #   StateBottleRetail &lt;dbl&gt;, BottlesSold &lt;dbl&gt;, `Sale(Dollars)` &lt;dbl&gt;,
-## #   `VolumeSold(Liters)` &lt;dbl&gt;, Address &lt;chr&gt;, City &lt;chr&gt;, ZipCode &lt;chr&gt;,
-## #   County &lt;chr&gt;</code></pre>
+
+saveRDS(df, &quot;data/finalDF.rds&quot;)</code></pre>
 </div>
 <div id="shiny-app" class="section level2">
 <h2>Shiny app</h2>
+<pre class="r"><code>shiny::runApp(&quot;shiny&quot;)</code></pre>
 </div>
 
 

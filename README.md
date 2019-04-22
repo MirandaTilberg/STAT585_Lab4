@@ -30,7 +30,6 @@ raw_df <- "https://data.iowa.gov/resource/m3tr-qhgy.json?county=Story" %>%
 
 ```r
 library(stringr)
-library(lubridate)
 
 # Download and unzip .csv file
 filename <- list(zip = "data/story-sales.zip", csv = "data/Iowa_Liquor_Sales-Story.csv")
@@ -47,7 +46,7 @@ raw_df <- readr::read_csv(filename$csv)
 df <- raw_df %>%
   rename_all(~ str_remove_all(., " ")) %>%
   mutate_at(vars(City, County, CategoryName), str_to_upper) %>% 
-  mutate(Date = mdy(Date), ZipCode = as.character(ZipCode),
+  mutate(Date = lubridate::mdy(Date), ZipCode = as.character(ZipCode),
          StoreLocation = str_extract(StoreLocation, "(?<=\\()\\S+, ?\\S+(?=\\)$)"),
          Category = case_when(
            str_detect(CategoryName, "BOURBON") ~ "BOURBON",
@@ -70,32 +69,12 @@ df <- raw_df %>%
   select(-City, -County, -ZipCode, -Address, everything()) %>%
   filter_at(vars(Date, Longitude, Latitude), ~ !is.na(.)) %>%
   arrange(Date)
-colnames(df)[c(7,11,12)] <- c("BottleVolume","Sale","VolumeSold")
-saveRDS(df,"finalDF.rds")
-```
 
-```
-## # A tibble: 457,020 x 16
-##    Item  Category Date       Latitude Longitude  Pack `BottleVolume(m…
-##    <chr> <chr>    <date>        <dbl>     <dbl> <dbl>            <dbl>
-##  1 Cana… WHISKIES 2012-01-03     42.0     -93.5     6             1750
-##  2 Crow… WHISKIES 2012-01-03     42.0     -93.5    12              750
-##  3 Para… GINS     2012-01-03     42.0     -93.7    12             1000
-##  4 Hawk… VODKA    2012-01-03     42.0     -93.6    24              375
-##  5 Sved… VODKA    2012-01-03     42.0     -93.5    12              750
-##  6 Crow… WHISKIES 2012-01-03     42.0     -93.6    12              750
-##  7 Smir… VODKA    2012-01-03     42.0     -93.5    12              750
-##  8 Bart… VODKA    2012-01-03     42.0     -93.5    12             1000
-##  9 Hawk… VODKA    2012-01-03     42.0     -93.5     6             1750
-## 10 E & … BRANDIES 2012-01-03     42.0     -93.6    12              750
-## # … with 457,010 more rows, and 9 more variables: StateBottleCost <dbl>,
-## #   StateBottleRetail <dbl>, BottlesSold <dbl>, `Sale(Dollars)` <dbl>,
-## #   `VolumeSold(Liters)` <dbl>, Address <chr>, City <chr>, ZipCode <chr>,
-## #   County <chr>
+saveRDS(df, "data/finalDF.rds")
 ```
 
 ## Shiny app
-```
-df <- readRDS("data/finalDF.rds")
-runApp("shiny")
+
+```r
+shiny::runApp("shiny")
 ```
