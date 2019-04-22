@@ -78,4 +78,4 @@ saveRDS(df, "data/finalDF.rds")
 ```r
 shiny::runApp("shiny")
 ```
-note: shiny app need 
+note: shinyapp needs to be run through the shiny/app.R file, would not run if loaded from Rmd file
